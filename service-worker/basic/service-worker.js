@@ -11,13 +11,13 @@
  limitations under the License.
 */
 
-// Names of the two caches used in this version of the service worker.
+// Names of the two caches used in this version of the service worker.在当前的service worker中用到的两个缓存的名字
 // Change to v2, etc. when you update any of the local resources, which will
-// in turn trigger the install event again.
+// in turn trigger the install event again.  当你再次执行安装，需要更新本地资源的时候把这里改成v2等等
 const PRECACHE = 'precache-v1';
 const RUNTIME = 'runtime';
 
-// A list of local resources we always want to be cached.
+// A list of local resources we always want to be cached.我们想要保持缓存的文件列表
 const PRECACHE_URLS = [
   'index.html',
   './', // Alias for index.html
@@ -26,8 +26,10 @@ const PRECACHE_URLS = [
   'demo.js'
 ];
 
-// The install handler takes care of precaching the resources we always need.
+// 监听service worker安装事件
+// The install handler takes care of precaching the resources we always need. 这个监听器会预缓存我们总是需要的资源
 self.addEventListener('install', event => {
+//  接收promise参数，缓存所有需要缓存的文件
   event.waitUntil(
     caches.open(PRECACHE)
       .then(cache => cache.addAll(PRECACHE_URLS))
@@ -35,7 +37,8 @@ self.addEventListener('install', event => {
   );
 });
 
-// The activate handler takes care of cleaning up old caches.
+// 监听激活事件
+// The activate handler takes care of cleaning up old caches. 这个监听器会清除过时的缓存
 self.addEventListener('activate', event => {
   const currentCaches = [PRECACHE, RUNTIME];
   event.waitUntil(
@@ -49,9 +52,11 @@ self.addEventListener('activate', event => {
   );
 });
 
+
+// 监听fetch事件
 // The fetch handler serves responses for same-origin resources from a cache.
 // If no response is found, it populates the runtime cache with the response
-// from the network before returning it to the page.
+// from the network before returning it to the page. 拦截fetch请求，如果缓存中有匹配的资源则直接返回资源，否则继续发出请求
 self.addEventListener('fetch', event => {
   // Skip cross-origin requests, like those for Google Analytics.
   if (event.request.url.startsWith(self.location.origin)) {
